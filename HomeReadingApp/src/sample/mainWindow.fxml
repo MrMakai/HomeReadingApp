@@ -1,0 +1,86 @@
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.GridPane?>
+
+<!--Also add validation for creating and editing students/classes-->
+
+
+<BorderPane fx:id="mainBorderPane" fx:controller="sample.Controller"
+            xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <VBox>
+            <MenuBar>
+                <menus>
+                    <Menu text="Class">
+                        <items>
+                            <MenuItem text="Add a new class..." onAction="#showCreateNewClassDialog"/>
+                        </items>
+                        <items>
+                            <MenuItem text="Edit the class..." onAction="#showEditClassDialog"/>
+                        </items>
+                        <items>
+                            <MenuItem text="Delete class" onAction="#deleteClassDialog"/>
+                        </items>
+                        <SeparatorMenuItem/>
+                        <items>
+                            <MenuItem text="Exit"/>
+                        </items>
+                    </Menu>
+                    <Menu text="Students">
+                        <items>
+                            <MenuItem text="Add a new student to the class" onAction="#showNewStudentDialog"/>
+                        </items>
+                        <items>
+                            <MenuItem text="Edit student information" onAction="#showEditStudentDialog"/>
+                        </items>
+                        <items>
+                            <MenuItem text="Remove student from the class" onAction="#removeStudentFromClass"/>
+                        </items>
+                        <items>
+                            <MenuItem text="Share out books" onAction="#distributeBooks"/>
+                        </items>
+                        <items>
+                            <MenuItem text="PrintReadingList" onAction="#printReadingList"/>
+                        </items>
+                        <items>
+                            <MenuItem text="Print student info to console" onAction="#printInfoToConsole"/>
+                        </items>
+                    </Menu>
+                </menus>
+            </MenuBar>
+        </VBox>
+    </top>
+    <left>
+        <BorderPane>
+            <top>
+
+            </top>
+            <center>
+                    <ListView fx:id="classList" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            </center>
+
+        </BorderPane>
+
+    </left>
+    <center>
+            <TableView fx:id="studentList">
+                <columns>
+                    <TableColumn text="Name" prefWidth="120">
+                        <cellValueFactory>
+                            <PropertyValueFactory property="FullName"/>
+                        </cellValueFactory>
+                    </TableColumn>
+                    <TableColumn fx:id="booksToReadList" text="Books to Read" prefWidth="Infinity"/>
+                </columns>
+            </TableView>
+
+    </center>
+</BorderPane>

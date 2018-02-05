@@ -1,0 +1,24 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<DialogPane fx:controller="sample.classes.NewClassDialogController"
+            xmlns:fx="http://javafx.com/fxml">
+    <headerText>
+        Please fill in the required information.
+        (Required fields are marked with *)
+    </headerText>
+    <content>
+        <GridPane hgap="10" vgap="10">
+            <Label text="Name of the class *" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <TextField fx:id="newClassNameTextField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            <Label text="Start date of the reading plan *" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <DatePicker fx:id="newClassStudyYearStartPicker" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            <Label text="Length of the reading plan (in weeks) *" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Spinner fx:id="newClassStudyYearLength" GridPane.columnIndex="1" GridPane.rowIndex="2"
+                      editable="true" maxWidth="60">
+                <valueFactory>
+                    <SpinnerValueFactory.IntegerSpinnerValueFactory min="1" max="51"/>
+                </valueFactory>
+            </Spinner>
+        </GridPane>
+    </content>
+</DialogPane>

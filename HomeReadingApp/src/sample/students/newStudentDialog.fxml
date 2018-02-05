@@ -1,0 +1,22 @@
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.DatePicker?>
+<DialogPane fx:controller="sample.students.NewStudentDialogController"
+            xmlns:fx="http://javafx.com/fxml">
+<headerText>
+    Please fill in the required information.
+    (Required fields are marked with *)
+</headerText>
+<content>
+    <GridPane hgap="10" vgap="10">
+        <Label text="First name *" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <TextField fx:id="newStudentFirstNameTextField" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label text="Last name *" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <TextField fx:id="newStudentLastNameTextField" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="Date of birth *" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <DatePicker fx:id="newStudentDateOfBirthPicker" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+    </GridPane>
+</content>
+</DialogPane>
