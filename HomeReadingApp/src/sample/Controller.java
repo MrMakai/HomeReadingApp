@@ -65,7 +65,6 @@ public class Controller {
     }
 
     private void readingListGenerator(ClassGroup classGroup, List<String> books) {
-        int count = 0;
         for (int n = 0; n < classGroup.getStudentList().size(); n++) {
             Student tempStudent = classGroup.getStudentList().get(n);
             for (int l = 0; l < classGroup.getStudyYear().getLengthOfYear(); l++) {
@@ -73,40 +72,48 @@ public class Controller {
             }
         }
         for (int i = 0; i < classGroup.getStudentList().size(); i++) {
+            boolean repeat = false;
             Student student = classGroup.getStudentList().get(i);
-            ObservableList<String> newList = FXCollections.observableArrayList();
+            ObservableList<String> readingList = FXCollections.observableArrayList();
             List<String> tempList = new ArrayList<>(books);
             for (int j = 0; j < classGroup.getStudyYear().getLengthOfYear(); j++) {
+                List<String> anotherTempBookList = new ArrayList<>(tempList);
                 Random random = new Random();
                 int randomNumber = random.nextInt(tempList.size());
                 for (int k = 0; k < classGroup.getStudentList().size(); k++) {
                     Student student1 = classGroup.getStudentList().get(k);
-//                    if (student1.getBooksToRead().get(j).equals(tempList.get(randomNumber))) {
-//                        System.out.println(student1.getFullName() + " " + classGroup.getStudyYear().getListOfWeeks().get(j));
-//                    }
-                    if  (tempList.size() == 1) {
-                        randomNumber = 0;
-                    }
-                    while (student1.getBooksToRead().get(j).equals(tempList.get(randomNumber))) {
-//                        if (tempList.size() == 1) {
-//                            randomNumber = 0;
-//                        }
-//                        Random anotherRandom = new Random();
-                        randomNumber = random.nextInt(tempList.size());
-                        System.out.println("1");
-                        count++;
-                        if (count == 50) {
-                            System.out.println("Couldn't distribute books");
+                    while (anotherTempBookList.get(randomNumber).equals(student1.getBooksToRead().get(j))) {
+                        if (anotherTempBookList.size() == 1) {
+                            System.out.println("AnotherTempBookList is almost empty " + student.getFullName()
+                                    + " on the date of " + classGroup.getStudyYear().getListOfWeeks().get(j));
+                            repeat = true;
                             break;
+                        } else {
+                            anotherTempBookList.remove(randomNumber);
+                            randomNumber = random.nextInt(anotherTempBookList.size());
+                            k = -1;
+                            System.out.println("1");
                         }
                     }
                 }
-                newList.add(j, tempList.get(randomNumber));
-                tempList.remove(randomNumber);
+                readingList.add(j, anotherTempBookList.get(randomNumber));
+                tempList.remove(anotherTempBookList.get(randomNumber));
+                if (repeat) {
+                    for (int l = 0; l < classGroup.getStudyYear().getLengthOfYear(); l++) {
+                        readingList.add(l, " ");
+                    }
+                    System.out.println("Reseting list for student " + student.getFullName());
+                    j = -1;
+                    tempList.clear();
+//                    tempList.removeAll(books);
+                    tempList.addAll(books);
+                    repeat = false;
+                }
             }
-            student.setBooksToRead(newList);
+            student.setBooksToRead(readingList);
+            System.out.println("Reading list successfully given to " + student.getFullName());
         }
-        System.out.println("--- Distribution successful ---");
+        System.out.println("--- Distribution has finished ---");
     }
 
     @FXML
