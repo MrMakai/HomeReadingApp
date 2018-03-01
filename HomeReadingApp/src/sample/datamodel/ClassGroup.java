@@ -3,7 +3,12 @@ package sample.datamodel;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+
 
 public class ClassGroup {
     private String name;
