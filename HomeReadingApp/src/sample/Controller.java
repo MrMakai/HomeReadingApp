@@ -1,7 +1,5 @@
 package sample;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -10,11 +8,13 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import sample.classes.NewClassDialogController;
 import sample.datamodel.ClassGroup;
+import sample.datamodel.CurrentWeek;
 import sample.datamodel.Data;
 import sample.datamodel.Student;
 import sample.students.NewStudentDialogController;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,21 +32,18 @@ public class Controller {
     @FXML
     private ListView<ClassGroup> classList;
     private Data data = Data.getInstance();
-    private ClassGroup newClass = new ClassGroup("Small group", 2017, 7, 7, 6);
+    private ClassGroup newClass = new ClassGroup("Small group", 2018, 2, 6, 6);
     private ClassGroup newClass1 = new ClassGroup("Large group", 2019, 7, 7, 3);
 
     public void initialize() {
         data.getAllSchools().add(newClass);
         data.getAllSchools().add(newClass1);
-        classList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ClassGroup>() {
-            @Override
-            public void changed(ObservableValue<? extends ClassGroup> observable, ClassGroup oldValue, ClassGroup newValue) {
-                if (newValue != null) {
-                    ClassGroup newClassGroup = classList.getSelectionModel().getSelectedItem();
-                    studentList.setItems(newClassGroup.getStudentList());
-                    booksToReadList.getColumns().setAll(newClassGroup.getBooksToRead().getColumns());
-                }
-            }
+
+        classList.getSelectionModel().selectedItemProperty().addListener((changed, oldVal, newVal) ->
+        {
+            ClassGroup newClassGroup = classList.getSelectionModel().getSelectedItem();
+            studentList.setItems(newClassGroup.getStudentList());
+            booksToReadList.getColumns().setAll(newClassGroup.getBooksToRead().getColumns());
         });
 
         classList.setItems(data.getAllSchools());
@@ -56,13 +53,22 @@ public class Controller {
         Student student = new Student("John", "Doe", 2013, 1, 14);
         Student student1 = new Student("Jane", "Doe", 2013, 2, 23);
         Student student2 = new Student("James", "Doe", 2013, 3, 5);
+        Student student3 = new Student("Jennifer", "Doe", 2013, 3, 5);
+        Student student4 = new Student("Jeremy", "Doe", 2013, 3, 5);
+        Student student5 = new Student("Jenny", "Doe", 2013, 3, 5);
+
 
         newClass.getStudentList().add(student);
         newClass.getStudentList().add(student1);
         newClass.getStudentList().add(student2);
+        newClass.getStudentList().add(student3);
+        newClass.getStudentList().add(student4);
+        newClass.getStudentList().add(student5);
         readingListGenerator(newClass, bookLibrary);
         studentList.setItems(newClass.getStudentList());
     }
+
+    // GOOD ONE BELOW
 
     private void readingListGenerator(ClassGroup classGroup, List<String> books) {
         for (int n = 0; n < classGroup.getStudentList().size(); n++) {
@@ -105,7 +111,6 @@ public class Controller {
                     System.out.println("Reseting list for student " + student.getFullName());
                     j = -1;
                     tempList.clear();
-//                    tempList.removeAll(books);
                     tempList.addAll(books);
                     repeat = false;
                 }
@@ -116,22 +121,145 @@ public class Controller {
         System.out.println("--- Distribution has finished ---");
     }
 
+    private boolean readingListGeneratorForRemainingWeeks(ClassGroup classGroup, List<String> books) {
+        int count = 0;
+        CurrentWeek currentWeek = new CurrentWeek();
+        ObservableList<LocalDate> current = currentWeek.currentWeek(classGroup);
+        current.retainAll(classGroup.getStudyYear().getListOfWeeks());
+        for (LocalDate week : current) {
+            System.out.println(week.toString());
+        }
+        int startingIndex = classGroup.getStudyYear().getListOfWeeks().indexOf(current.get(0));
+
+        for (int n = 0; n < classGroup.getStudentList().size(); n++) {
+            Student tempStudent = classGroup.getStudentList().get(n);
+            for (int l = startingIndex; l < classGroup.getStudyYear().getLengthOfYear(); l++) {
+                tempStudent.getBooksToRead().add(l, " ");
+            }
+        }
+        for (int i = 0; i < classGroup.getStudentList().size(); i++) {
+            boolean repeat = false;
+            Student student = classGroup.getStudentList().get(i);
+            ObservableList<String> readingList = FXCollections.observableArrayList();
+            List<String> tempBookListForEachStudent = new ArrayList<>(books);
+            for (int p = 0; p < startingIndex; p++) {
+                readingList.add(student.getBooksToRead().get(p));
+                tempBookListForEachStudent.remove(student.getBooksToRead().get(p));
+            }
+            for (int j = startingIndex; j < classGroup.getStudyYear().getLengthOfYear(); j++) {
+                List<String> anotherTempBookList = new ArrayList<>(books);
+                anotherTempBookList.retainAll(tempBookListForEachStudent);
+                Random random = new Random();
+                int randomNumber = random.nextInt(tempBookListForEachStudent.size());
+                for (int k = 0; k < classGroup.getStudentList().size(); k++) {
+                    Student student1 = classGroup.getStudentList().get(k);
+                    while (anotherTempBookList.get(randomNumber).equals(student1.getBooksToRead().get(j))) {
+                        if (anotherTempBookList.size() == 1) {
+                            System.out.println("AnotherTempBookList is almost empty " + student.getFullName()
+                                    + " on the date of " + classGroup.getStudyYear().getListOfWeeks().get(j));
+                            repeat = true;
+                            break;
+                        } else {
+                            anotherTempBookList.remove(randomNumber);
+                            randomNumber = random.nextInt(anotherTempBookList.size());
+                            k = -1;
+                            System.out.println("1");
+                        }
+                    }
+                }
+                System.out.println("Adding " + anotherTempBookList.get(randomNumber) + " on the date of " +
+                        classGroup.getStudyYear().getListOfWeeks().get(j) + " for student " + student.getFullName());
+                readingList.add(j, anotherTempBookList.get(randomNumber));
+                tempBookListForEachStudent.remove(anotherTempBookList.get(randomNumber));
+                if (repeat) {
+                    for (int l = startingIndex; l < classGroup.getStudyYear().getLengthOfYear(); l++) {
+                        readingList.add(l, " ");
+                    }
+                    System.out.println("Reseting list for student " + student.getFullName());
+                    j = startingIndex - 1;
+                    tempBookListForEachStudent.clear();
+                    tempBookListForEachStudent.addAll(books);
+                    for (int p = 0; p < startingIndex; p++) {
+                        tempBookListForEachStudent.remove(student.getBooksToRead().get(p));
+                    }
+                    count++;
+                    if (count == 20) {
+                        System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+                        return true;
+                    }
+                }
+            }
+            student.setBooksToRead(readingList);
+            System.out.println("Reading list successfully given to " + student.getFullName());
+        }
+        System.out.println("--- Distribution has finished ---");
+        return false;
+    }
+
+
+//    private void readingListGeneratorVersionTwo(ClassGroup classGroup, List<String> books) {
+//        for (int n = 0; n < classGroup.getStudentList().size(); n++) {
+//            Student tempStudent = classGroup.getStudentList().get(n);
+//            for (int l = 0; l < classGroup.getStudyYear().getLengthOfYear(); l++) {
+//                tempStudent.getBooksToRead().add(l, " ");
+//            }
+//        }
+//        for (int i = 0; i < classGroup.getStudentList().size(); i++) {
+//            Student student = classGroup.getStudentList().get(i);
+//            readingListGeneratorForSelectedStudents(classGroup, student, books);
+//        }
+//    }
+
+
+    private void readingListGeneratorForSelectedStudents(ClassGroup classGroup, Student student, List<String> books) {
+        ObservableList<String> readingList = FXCollections.observableArrayList();
+        List<String> tempBookList = new ArrayList<>(books);
+        boolean repeat = false;
+        for (int i = 0; i < classGroup.getStudyYear().getLengthOfYear(); i++) {
+            student.getBooksToRead().set(i, " ");
+        }
+        for (int i = 0; i < classGroup.getStudyYear().getLengthOfYear(); i++) {
+            List<String> unavailableBooks = new ArrayList<>();
+            for (int j = 0; j < classGroup.getStudentList().size(); j++) {
+                Student students = classGroup.getStudentList().get(j);
+                unavailableBooks.add(students.getBooksToRead().get(i));
+            }
+            List<String> availableBooks = new ArrayList<>(books);
+            availableBooks.removeAll(unavailableBooks);
+            Random random = new Random();
+            int randomNumber = random.nextInt(availableBooks.size());
+            while (!tempBookList.contains(availableBooks.get(randomNumber))) {
+                if (availableBooks.size() == 1) {
+                    System.out.println("Student " + student.getFullName() + " on date " +
+                            classGroup.getStudyYear().getListOfWeeks().get(i) + " had a problem.");
+                    repeat = true;
+                    break;
+                } else {
+                    availableBooks.remove(randomNumber);
+                    randomNumber = random.nextInt(availableBooks.size());
+                }
+            }
+            readingList.add(i, availableBooks.get(randomNumber));
+            tempBookList.remove(availableBooks.get(randomNumber));
+            if (repeat) {
+                i = -1;
+                tempBookList.clear();
+                tempBookList.addAll(books);
+                repeat = false;
+            }
+        }
+        student.setBooksToRead(readingList);
+    }
+
+
     @FXML
     public void showNewStudentDialog() {
         ClassGroup selectedClass = classList.getSelectionModel().getSelectedItem();
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainBorderPane.getScene().getWindow());
         dialog.setTitle("Create new student");
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("students\\newStudentDialog.fxml"));
-
-        try {
-            dialog.getDialogPane().setContent(fxmlLoader.load());
-        } catch (IOException e) {
-            System.out.println("Couldn't load the dialog: " + e.getMessage());
-            e.printStackTrace();
-            return;
-        }
+        FXMLLoader fxmlLoader = fxmlLoader(dialog, "students\\newStudentDialog.fxml",
+                "Couldn't load the dialog: ");
 
         dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
@@ -161,7 +289,7 @@ public class Controller {
                     (newStudent.getDateOfBirth().getDayOfMonth() == 1)) {
                 return;
             }
-//            !!! This for loop is required for the table view data binding to work !!!
+//          This for loop is required for the table view data binding to work
             List<String> newStudentEmptyReadingList = new ArrayList<>();
             for (int i = 0; i < newClass.getStudyYear().getLengthOfYear(); i++) {
                 newStudentEmptyReadingList.add("");
@@ -184,16 +312,8 @@ public class Controller {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainBorderPane.getScene().getWindow());
         dialog.setTitle("Edit student");
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("students\\newStudentDialog.fxml"));
-
-        try {
-            dialog.getDialogPane().setContent(fxmlLoader.load());
-        } catch (IOException e) {
-            System.out.println("Couldn't load the dialog: " + e.getMessage());
-            e.printStackTrace();
-            return;
-        }
+        FXMLLoader fxmlLoader = fxmlLoader(dialog, "students\\newStudentDialog.fxml",
+                "Couldn't load the dialog: ");
 
         dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
@@ -234,11 +354,9 @@ public class Controller {
             alert.showAndWait();
             return;
         }
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Removing student from the class");
-        alert.setHeaderText(null);
-        alert.setContentText("Are you sure you want to remove " + selectedStudent.getFullName() +
-                " from the class?");
+        Alert alert = alertTypeConfirmation("Removing student from the class", null,
+                "Are you sure you want to remove " + selectedStudent.getFullName() +
+                        " from the class?");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             selectedClass.getStudentList().remove(selectedStudent);
@@ -250,16 +368,8 @@ public class Controller {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainBorderPane.getScene().getWindow());
         dialog.setTitle("Create new class");
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("classes\\newClassDialog.fxml"));
-
-        try {
-            dialog.getDialogPane().setContent(fxmlLoader.load());
-        } catch (IOException e) {
-            System.out.println("Couldn't load dialog: " + e.getMessage());
-            e.printStackTrace();
-            return;
-        }
+        FXMLLoader fxmlLoader = fxmlLoader(dialog, "classes\\newClassDialog.fxml",
+                "Couldn't load the dialog:");
 
         dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
@@ -300,16 +410,7 @@ public class Controller {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainBorderPane.getScene().getWindow());
         dialog.setTitle("Edit class");
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("classes\\newClassDialog.fxml"));
-
-        try {
-            dialog.getDialogPane().setContent(fxmlLoader.load());
-        } catch (IOException e) {
-            System.out.println("Couldn't load the dialog: " + e.getMessage());
-            e.printStackTrace();
-            return;
-        }
+        FXMLLoader fxmlLoader = fxmlLoader(dialog, "classes\\newClassDialog.fxml", "Couldn't load the dialog");
 
         dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
@@ -349,11 +450,9 @@ public class Controller {
     @FXML
     public void deleteClassDialog() {
         ClassGroup selectedClassGroup = classList.getSelectionModel().getSelectedItem();
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Removing class from the list");
-        alert.setHeaderText(null);
-        alert.setContentText("Are you sure you want to remove " + selectedClassGroup.getName() +
-                " from the list?");
+        Alert alert = alertTypeConfirmation("Removing class from the list", null,
+                "Are you sure you want to remove " + selectedClassGroup.getName() +
+                        " from the list?");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             data.getAllSchools().remove(selectedClassGroup);
@@ -379,6 +478,41 @@ public class Controller {
     public void distributeBooks() {
         ClassGroup selectedClassGroup = classList.getSelectionModel().getSelectedItem();
         readingListGenerator(selectedClassGroup, createBookLibrary());
+//        readingListGeneratorVersionTwo(selectedClassGroup, createBookLibrary());
+        studentList.refresh();
+    }
+
+    @FXML
+    public void distributeBooksForRemainingWeeks() {
+        ClassGroup selectedClassGroup = classList.getSelectionModel().getSelectedItem();
+        boolean repeat = readingListGeneratorForRemainingWeeks(selectedClassGroup, createBookLibrary());
+        while (repeat) {
+            repeat = readingListGeneratorForRemainingWeeks(selectedClassGroup, createBookLibrary());
+            System.out.println("******************************************************************");
+            System.out.println("******************************************************************");
+            System.out.println("******************************************************************");
+            System.out.println("******************************************************************");
+            System.out.println("********************Error, sharing again**************************");
+            System.out.println("******************************************************************");
+            System.out.println("******************************************************************");
+            System.out.println("******************************************************************");
+            System.out.println("******************************************************************");
+
+        }
+        studentList.refresh();
+    }
+
+    @FXML
+    public void readingListGeneratorForSelectedStudent() {
+        ClassGroup selectedClassGroup = classList.getSelectionModel().getSelectedItem();
+        Student selectedStudent = studentList.getSelectionModel().getSelectedItem();
+        if (selectedStudent == null) {
+            Alert alert = alertTypeInformation("No student selected", null,
+                    "Please select the student.");
+            alert.showAndWait();
+            return;
+        }
+        readingListGeneratorForSelectedStudents(selectedClassGroup, selectedStudent, createBookLibrary());
         studentList.refresh();
     }
 
@@ -393,11 +527,25 @@ public class Controller {
         }
     }
 
-    @FXML
-    public void printInfoToConsole() {
-        Student selectedStudent = studentList.getSelectionModel().getSelectedItem();
-        System.out.println(selectedStudent.getFullName() + " : " + selectedStudent.getDateOfBirth());
+//    @FXML
+//    public void printInfoToConsole() {
+//        Student selectedStudent = studentList.getSelectionModel().getSelectedItem();
+//        System.out.println(selectedStudent.getFullName() + " : " + selectedStudent.getDateOfBirth());
+//
+//    }
 
+    private FXMLLoader fxmlLoader(Dialog<ButtonType> dialog, String path, String exceptionMessage) {
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource(path));
+
+        try {
+            dialog.getDialogPane().setContent(fxmlLoader.load());
+        } catch (IOException e) {
+            System.out.println(exceptionMessage + " " + e.getMessage());
+            e.printStackTrace();
+
+        }
+        return fxmlLoader;
     }
 
     private Alert alertTypeError(String title, String header, String content) {
@@ -410,6 +558,14 @@ public class Controller {
 
     private Alert alertTypeInformation(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        return alert;
+    }
+
+    private Alert alertTypeConfirmation(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);
         alert.setContentText(content);
