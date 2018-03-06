@@ -1,18 +1,6 @@
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.layout.GridPane?>
-
-<!--Also add validation for creating and editing students/classes-->
-
-
+<?import javafx.scene.layout.*?>
 <BorderPane fx:id="mainBorderPane" fx:controller="sample.Controller"
             xmlns:fx="http://javafx.com/fxml">
     <top>
@@ -44,14 +32,29 @@
                         <items>
                             <MenuItem text="Remove student from the class" onAction="#removeStudentFromClass"/>
                         </items>
+                        <SeparatorMenuItem/>
                         <items>
                             <MenuItem text="Share out books" onAction="#distributeBooks"/>
                         </items>
                         <items>
-                            <MenuItem text="PrintReadingList" onAction="#printReadingList"/>
+                            <MenuItem text="Generate reading list for selected student" onAction="#readingListGeneratorForSelectedStudent"/>
                         </items>
                         <items>
-                            <MenuItem text="Print student info to console" onAction="#printInfoToConsole"/>
+                            <MenuItem text="Share out books for remaining weeks" onAction="#distributeBooksForRemainingWeeks"/>
+                        </items>
+                        <!--<items>-->
+                            <!--<MenuItem text="Refresh books for selected student" onAction="#distributeBooksForStudent"/>-->
+                        <!--</items>-->
+                        <items>
+                            <MenuItem text="PrintReadingList" onAction="#printReadingList"/>
+                        </items>
+                        <!--<items>-->
+                            <!--<MenuItem text="Print student info to console" onAction="#printInfoToConsole"/>-->
+                        <!--</items>-->
+                    </Menu>
+                    <Menu text="Library">
+                        <items>
+                            <MenuItem text="Add books to the library"/>
                         </items>
                     </Menu>
                 </menus>
@@ -61,6 +64,11 @@
     <left>
         <BorderPane>
             <top>
+                <ToolBar>
+                    <Button text="Create new class" onAction="#showCreateNewClassDialog"/>
+                    <Button text="Edit selected class" onAction="#showEditClassDialog"/>
+                    <Button text="Remove class" onAction="#deleteClassDialog"/>
+                </ToolBar>
 
             </top>
             <center>
@@ -71,16 +79,33 @@
 
     </left>
     <center>
-            <TableView fx:id="studentList">
-                <columns>
-                    <TableColumn text="Name" prefWidth="120">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="FullName"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn fx:id="booksToReadList" text="Books to Read" prefWidth="Infinity"/>
-                </columns>
-            </TableView>
+        <BorderPane>
+            <top>
+                <ToolBar>
+                    <Button text="Add student to the class" onAction="#showNewStudentDialog"/>
+                    <Button text="Edit selected student" onAction="#showEditStudentDialog"/>
+                    <Button text="Remove student from class" onAction="#removeStudentFromClass"/>
+                    <Button text="Distribute books" onAction="#distributeBooks"/>
+                    <Button text="Generate reading list for selected student" onAction="#readingListGeneratorForSelectedStudent"/>
+                    <Button text="Share out books for remaining weeks" onAction="#distributeBooksForRemainingWeeks"/>
+                </ToolBar>
+
+            </top>
+            <center>
+                <TableView fx:id="studentList">
+                    <columns>
+                        <TableColumn text="Name" prefWidth="120">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="FullName"/>
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="booksToReadList" text="Books to Read" prefWidth="Infinity" />
+                    </columns>
+                </TableView>
+            </center>
+
+        </BorderPane>
+
 
     </center>
 </BorderPane>
