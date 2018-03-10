@@ -291,7 +291,7 @@ public class Controller {
             }
 //          This for loop is required for the table view data binding to work
             List<String> newStudentEmptyReadingList = new ArrayList<>();
-            for (int i = 0; i < newClass.getStudyYear().getLengthOfYear(); i++) {
+            for (int i = 0; i < selectedClass.getStudyYear().getLengthOfYear(); i++) {
                 newStudentEmptyReadingList.add("");
             }
             newStudent.setBooksToRead(newStudentEmptyReadingList);
