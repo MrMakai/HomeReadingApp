@@ -103,6 +103,9 @@ public class Controller {
     }
 
 
+    // Really roundabout way of doing the classGroup delete method, 
+    // but did it this way for consistency's sake.
+    
     @FXML
     public void deleteClassDialog() {
         ClassGroup selectedClassGroup = classList.getSelectionModel().getSelectedItem();
