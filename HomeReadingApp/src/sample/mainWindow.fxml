@@ -1,7 +1,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.*?>
-<BorderPane fx:id="mainBorderPane" fx:controller="sample.Controller"
+<BorderPane fx:id="mainBorderPane" fx:controller="sample.mainController.Controller"
             xmlns:fx="http://javafx.com/fxml">
     <top>
         <VBox>
