@@ -25,7 +25,7 @@ public class Controller {
     private ClassGroupController classGroupControllerObject = new ClassGroupController();
     private ReadingListGenerator readingListGeneratorObject = new ReadingListGenerator();
 
-    private ClassGroup newClass = new ClassGroup("Small group", 2018, 2, 6, 6);
+    private ClassGroup newClass = new ClassGroup("Small group", 2018, 2, 28, 6);
     private ClassGroup newClass1 = new ClassGroup("Large group", 2019, 7, 7, 3);
 
     public void initialize() {
