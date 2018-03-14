@@ -130,12 +130,19 @@ public class Controller {
         return bookLibrary;
     }
 
-    @FXML
+     @FXML
     public void distributeBooks() {
         ClassGroup selectedClassGroup = classList.getSelectionModel().getSelectedItem();
-        readingListGeneratorObject.readingListGenerator(selectedClassGroup, createBookLibrary());
+        if ((selectedClassGroup.getStudentList().size() <= createBookLibrary().size()) &&
+                (selectedClassGroup.getStudyYear().getLengthOfYear() <= createBookLibrary().size())) {
+            readingListGeneratorObject.readingListGenerator(selectedClassGroup, createBookLibrary());
 //      readingListGeneratorObject.readingListGeneratorVersionTwo(selectedClassGroup, createBookLibrary());
-        studentList.refresh();
+            studentList.refresh();
+        } else {
+            Alert alert = AlertAndFXMLLoaderClass.alertTypeError("Error distributing books", null,
+                    "You don't have enough books in the library for the selected class.");
+            alert.showAndWait();
+        }
     }
 
     @FXML
